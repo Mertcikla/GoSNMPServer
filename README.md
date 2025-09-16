@@ -1,8 +1,6 @@
 GoSNMPServer
 ======
-[![Build Status](https://travis-ci.org/mertcikla/GoSNMPServer.svg?branch=master)](https://travis-ci.org/mertcikla/GoSNMPServer)
-[![GoDoc](https://godoc.org/github.com/mertcikla/GoSNMPServer?status.png)](https://godoc.org/github.com/mertcikla/GoSNMPServer)
-[![codecov](https://codecov.io/gh/mertcikla/GoSNMPServer/branch/master/graph/badge.svg)](https://codecov.io/gh/mertcikla/GoSNMPServer)
+[![Cobertura Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/mertcikla/cobertura-badge/main/coverage.json)](https://github.com/mertcikla/GoSNMPServer/actions)
 
 GoSNMPServer is an SNMP server library fully written in Go. It provides Server Get,
 GetNext, GetBulk, Walk, BulkWalk, Set and Traps. It supports IPv4 and
