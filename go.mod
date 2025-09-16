@@ -1,6 +1,6 @@
 module github.com/mertcikla/GoSNMPServer
 
-go 1.13
+go 1.25
 
 require (
 	github.com/gosnmp/gosnmp v1.36.2-0.20231009064202-d306ed5aa998

@@ -15,7 +15,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.13'
+          go-version: '1.25'
       - name: Install SNMP
         run: sudo apt-get -y install snmp
       - name: Set GOARCH
