@@ -2,6 +2,7 @@ package GoSNMPServer
 
 import (
 	"fmt"
+	"net"
 	"sort"
 	"strings"
 	"sync"
@@ -66,13 +67,19 @@ func (t *SubAgent) SyncConfig() error {
 }
 
 func (t *SubAgent) Serve(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, error) {
+	return t.ServeWithDestIP(i, nil)
+}
+
+func (t *SubAgent) ServeWithDestIP(i *gosnmp.SnmpPacket, destinationIP net.IP) (*gosnmp.SnmpPacket, error) {
+	baseCtx := &RequestContext{DestinationIP: destinationIP, Packet: i, SubAgent: t}
+
 	switch i.PDUType {
 	case gosnmp.GetRequest:
-		return t.serveGetRequest(i)
+		return t.serveGetRequest(i, baseCtx)
 	case gosnmp.GetNextRequest:
-		return t.serveGetNextRequest(i)
+		return t.serveGetNextRequest(i, baseCtx)
 	case gosnmp.GetBulkRequest:
-		return t.serveGetBulkRequest(i)
+		return t.serveGetBulkRequest(i, baseCtx)
 	case gosnmp.SetRequest:
 		return t.serveSetRequest(i)
 	case gosnmp.Trap, gosnmp.SNMPv2Trap, gosnmp.InformRequest:
@@ -140,7 +147,7 @@ func (t *SubAgent) getPDUOctetString(Name, str string) gosnmp.SnmpPDU {
 }
 
 func (t *SubAgent) getForPDUValueControlResult(item *PDUValueControlItem,
-	i *gosnmp.SnmpPacket) (pdu gosnmp.SnmpPDU, errret gosnmp.SNMPError) {
+	i *gosnmp.SnmpPacket, ctx *RequestContext) (pdu gosnmp.SnmpPDU, errret gosnmp.SNMPError) {
 	if t.checkPermission(item, i) != PermissionAllowanceAllowed {
 		return t.getPDUNil(item.OID), gosnmp.NoAccess
 	}
@@ -157,7 +164,7 @@ func (t *SubAgent) getForPDUValueControlResult(item *PDUValueControlItem,
 			return
 		}
 	}()
-	valtoRet, err := item.OnGet()
+	valtoRet, err := item.OnGet(ctx)
 	if err != nil {
 		if t.UserErrorMarkPacket {
 			errret = gosnmp.GenErr
@@ -211,7 +218,7 @@ func (t *SubAgent) trapForPDUValueControlResult(item *PDUValueControlItem,
 	}, gosnmp.NoError
 }
 
-func (t *SubAgent) serveGetRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, error) {
+func (t *SubAgent) serveGetRequest(i *gosnmp.SnmpPacket, baseCtx *RequestContext) (*gosnmp.SnmpPacket, error) {
 	var ret gosnmp.SnmpPacket = copySnmpPacket(i)
 	t.Logger.Debugf("before copy: %v...After copy:%v",
 		i.SecurityParameters.(*gosnmp.UsmSecurityParameters),
@@ -238,7 +245,7 @@ func (t *SubAgent) serveGetRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, er
 			continue
 		}
 
-		ctl, snmperr := t.getForPDUValueControlResult(item, i)
+		ctl, snmperr := t.getForPDUValueControlResult(item, i, baseCtx)
 		if snmperr != gosnmp.NoError && ret.Error == gosnmp.NoError {
 			ret.Error = snmperr
 			ret.ErrorIndex = uint8(id)
@@ -285,7 +292,7 @@ func (t *SubAgent) serveTrap(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, error) {
 
 }
 
-func (t *SubAgent) serveGetBulkRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, error) {
+func (t *SubAgent) serveGetBulkRequest(i *gosnmp.SnmpPacket, baseCtx *RequestContext) (*gosnmp.SnmpPacket, error) {
 	var ret gosnmp.SnmpPacket = copySnmpPacket(i)
 	ret.PDUType = gosnmp.GetResponse
 	ret.Variables = []gosnmp.SnmpPDU{}
@@ -304,7 +311,7 @@ func (t *SubAgent) serveGetBulkRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket
 			continue
 		}
 
-		ctl, snmperr := t.getForPDUValueControlResult(item, i)
+		ctl, snmperr := t.getForPDUValueControlResult(item, i, baseCtx)
 		if snmperr != gosnmp.NoError && ret.Error == gosnmp.NoError {
 			ret.Error = snmperr
 			ret.ErrorIndex = j
@@ -341,7 +348,7 @@ func (t *SubAgent) serveGetBulkRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket
 				continue
 			}
 			t.Logger.Debugf("t.getForPDUValueControl. query_for_oid=%v item=%v id=%v", queryForOid, item, item.id)
-			ctl, snmperr := t.getForPDUValueControlResult(item, i)
+			ctl, snmperr := t.getForPDUValueControlResult(item, i, baseCtx)
 			if snmperr != gosnmp.NoError && ret.Error == gosnmp.NoError {
 				ret.Error = snmperr
 				ret.ErrorIndex = k
@@ -353,7 +360,7 @@ func (t *SubAgent) serveGetBulkRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket
 	return &ret, nil
 }
 
-func (t *SubAgent) serveGetNextRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, error) {
+func (t *SubAgent) serveGetNextRequest(i *gosnmp.SnmpPacket, baseCtx *RequestContext) (*gosnmp.SnmpPacket, error) {
 	var ret gosnmp.SnmpPacket = copySnmpPacket(i)
 
 	ret.PDUType = gosnmp.GetResponse
@@ -390,7 +397,7 @@ func (t *SubAgent) serveGetNextRequest(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket
 			t.Logger.Debugf("getnext: oid=%v. skip for non walkable", item.OID)
 			continue // skip non-walkable items
 		}
-		ctl, snmperr := t.getForPDUValueControlResult(item, i)
+		ctl, snmperr := t.getForPDUValueControlResult(item, i, baseCtx)
 		if snmperr != gosnmp.NoError && ret.Error == gosnmp.NoError {
 			ret.Error = snmperr
 			ret.ErrorIndex = uint8(item.id)

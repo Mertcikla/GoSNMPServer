@@ -1,8 +1,11 @@
 package GoSNMPServer
 
-import "net"
-import "github.com/pkg/errors"
-import "reflect"
+import (
+	"net"
+	"reflect"
+
+	"github.com/pkg/errors"
+)
 
 type SNMPServer struct {
 	wconnStream ISnmpServerListener
@@ -82,7 +85,12 @@ func (server *SNMPServer) ServeNextRequest() (err error) {
 	if err != nil {
 		return err
 	}
-	result, err := server.master.ResponseForBuffer(bytePDU)
+
+	// Extract destination IP from the replyer
+	destinationIP := replyer.GetDestinationIP()
+	server.logger.Debugf("Processing SNMP request for destination IP: %v", destinationIP)
+
+	result, err := server.master.ResponseForBufferWithDestIP(bytePDU, destinationIP)
 	if err != nil {
 		v := "with"
 		if len(result) == 0 {

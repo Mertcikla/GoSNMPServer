@@ -1,6 +1,7 @@
 package GoSNMPServer
 
 import (
+	"net"
 	"reflect"
 	"strings"
 	"time"
@@ -124,6 +125,10 @@ func (t *MasterAgent) getUserNameFromRequest(request *gosnmp.SnmpPacket) string 
 }
 
 func (t *MasterAgent) ResponseForBuffer(i []byte) ([]byte, error) {
+	return t.ResponseForBufferWithDestIP(i, nil)
+}
+
+func (t *MasterAgent) ResponseForBufferWithDestIP(i []byte, destinationIP net.IP) ([]byte, error) {
 	// Decode
 	vhandle := gosnmp.GoSNMP{}
 	vhandle.Logger = gosnmp.NewLogger(&SnmpLoggerAdapter{t.Logger})
@@ -137,12 +142,12 @@ func (t *MasterAgent) ResponseForBuffer(i []byte) ([]byte, error) {
 			return nil, errors.WithMessagef(ErrUnsupportedProtoVersion, "Server sets snmpV3 Only")
 		}
 
-		return t.marshalPkt(t.ResponseForPkt(request))
+		return t.marshalPkt(t.ResponseForPktWithDestIP(request, destinationIP))
 		//
 	case gosnmp.Version3:
 		// check for initial - discover response / non Privacy Items
 		if decodeError == nil && len(request.Variables) == 0 {
-			val, err := t.ResponseForPkt(request)
+			val, err := t.ResponseForPktWithDestIP(request, destinationIP)
 
 			if val == nil {
 				return t.marshalPkt(request, err)
@@ -160,25 +165,23 @@ func (t *MasterAgent) ResponseForBuffer(i []byte) ([]byte, error) {
 			return nil, err
 		}
 
-		if !t.SecurityConfig.NoSecurity{
+		if !t.SecurityConfig.NoSecurity {
 			// https://pkg.go.dev/github.com/gosnmp/gosnmp#SnmpV3MsgFlags
 			userAuthMode := gosnmp.NoAuthNoPriv
 
-
 			if usm.AuthenticationProtocol > gosnmp.NoAuth {
-					userAuthMode = gosnmp.AuthNoPriv
+				userAuthMode = gosnmp.AuthNoPriv
 			}
-
 
 			if usm.PrivacyProtocol > gosnmp.NoPriv {
-					userAuthMode = gosnmp.AuthPriv
+				userAuthMode = gosnmp.AuthPriv
 			}
 
-			requestAuthMode := request.MsgFlags&gosnmp.AuthPriv /*3*/ 
+			requestAuthMode := request.MsgFlags & gosnmp.AuthPriv /*3*/
 
 			if requestAuthMode != gosnmp.SnmpV3MsgFlags(userAuthMode) {
-				return nil, 
-					errors.WithMessagef(ErrNoPermission, 
+				return nil,
+					errors.WithMessagef(ErrNoPermission,
 						"user %v required %v, got %v", username, userAuthMode.String(), request.MsgFlags.String())
 			}
 		}
@@ -199,7 +202,7 @@ func (t *MasterAgent) ResponseForBuffer(i []byte) ([]byte, error) {
 			}
 		}
 
-		val, err := t.ResponseForPkt(request)
+		val, err := t.ResponseForPktWithDestIP(request, destinationIP)
 		if val == nil {
 			request.SecurityParameters = vhandle.SecurityParameters
 			return t.marshalPkt(request, err)
@@ -276,13 +279,17 @@ func (t *MasterAgent) fillErrorPkt(err error, io *gosnmp.SnmpPacket) error {
 }
 
 func (t *MasterAgent) ResponseForPkt(i *gosnmp.SnmpPacket) (*gosnmp.SnmpPacket, error) {
+	return t.ResponseForPktWithDestIP(i, nil)
+}
+
+func (t *MasterAgent) ResponseForPktWithDestIP(i *gosnmp.SnmpPacket, destinationIP net.IP) (*gosnmp.SnmpPacket, error) {
 	// Find for which SubAgent
 	community := getPktContextOrCommunity(i)
 	subAgent := t.findForSubAgent(community)
 	if subAgent == nil {
 		return i, errors.WithStack(ErrNoSNMPInstance)
 	}
-	return subAgent.Serve(i)
+	return subAgent.ServeWithDestIP(i, destinationIP)
 }
 
 func (t *MasterAgent) SyncConfig() error {
@@ -323,7 +330,7 @@ func (t *MasterAgent) findForSubAgent(community string) *SubAgent {
 			return t.priv.defaultSubAgent
 		}
 		return nil
-	} 
+	}
 }
 
 func DefaultAuthoritativeEngineID() SNMPEngineID {

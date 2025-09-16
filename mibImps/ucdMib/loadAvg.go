@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gosnmp/gosnmp"
+	"github.com/mertcikla/GoSNMPServer"
 	"github.com/shirou/gopsutil/v3/load"
-	"github.com/slayercat/GoSNMPServer"
 )
 
 // SystemLoadOIDs Returns a list of system Load.
@@ -14,21 +14,25 @@ import (
 func SystemLoadOIDs() []*GoSNMPServer.PDUValueControlItem {
 	return []*GoSNMPServer.PDUValueControlItem{
 		{
-			OID:      "1.3.6.1.4.1.2021.10.1.1.1",
-			Type:     gosnmp.Integer,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(1), nil },
+			OID:  "1.3.6.1.4.1.2021.10.1.1.1",
+			Type: gosnmp.Integer,
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+				return GoSNMPServer.Asn1IntegerWrap(1), nil
+			},
 			Document: "laIndex",
 		},
 		{
-			OID:      "1.3.6.1.4.1.2021.10.1.2.1",
-			Type:     gosnmp.OctetString,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1OctetStringWrap("Load-1"), nil },
+			OID:  "1.3.6.1.4.1.2021.10.1.2.1",
+			Type: gosnmp.OctetString,
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+				return GoSNMPServer.Asn1OctetStringWrap("Load-1"), nil
+			},
 			Document: "laNames",
 		},
 		{
 			OID:  "1.3.6.1.4.1.2021.10.1.3.1",
 			Type: gosnmp.OctetString,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				if val, err := load.Avg(); err != nil {
 					return nil, err
 				} else {
@@ -40,7 +44,7 @@ func SystemLoadOIDs() []*GoSNMPServer.PDUValueControlItem {
 		{
 			OID:  "1.3.6.1.4.1.2021.10.1.5.1",
 			Type: gosnmp.Integer,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				if val, err := load.Avg(); err != nil {
 					return nil, err
 				} else {
@@ -51,21 +55,25 @@ func SystemLoadOIDs() []*GoSNMPServer.PDUValueControlItem {
 		},
 		/////  5Min
 		{
-			OID:      "1.3.6.1.4.1.2021.10.1.1.2",
-			Type:     gosnmp.Integer,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(2), nil },
+			OID:  "1.3.6.1.4.1.2021.10.1.1.2",
+			Type: gosnmp.Integer,
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+				return GoSNMPServer.Asn1IntegerWrap(2), nil
+			},
 			Document: "laIndex",
 		},
 		{
-			OID:      "1.3.6.1.4.1.2021.10.1.2.2",
-			Type:     gosnmp.OctetString,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1OctetStringWrap("Load-5"), nil },
+			OID:  "1.3.6.1.4.1.2021.10.1.2.2",
+			Type: gosnmp.OctetString,
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+				return GoSNMPServer.Asn1OctetStringWrap("Load-5"), nil
+			},
 			Document: "laNames",
 		},
 		{
 			OID:  "1.3.6.1.4.1.2021.10.1.3.2",
 			Type: gosnmp.OctetString,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				if val, err := load.Avg(); err != nil {
 					return nil, err
 				} else {
@@ -77,7 +85,7 @@ func SystemLoadOIDs() []*GoSNMPServer.PDUValueControlItem {
 		{
 			OID:  "1.3.6.1.4.1.2021.10.1.5.2",
 			Type: gosnmp.Integer,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				if val, err := load.Avg(); err != nil {
 					return nil, err
 				} else {
@@ -88,21 +96,25 @@ func SystemLoadOIDs() []*GoSNMPServer.PDUValueControlItem {
 		},
 		/////  15 min
 		{
-			OID:      "1.3.6.1.4.1.2021.10.1.1.3",
-			Type:     gosnmp.Integer,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(3), nil },
+			OID:  "1.3.6.1.4.1.2021.10.1.1.3",
+			Type: gosnmp.Integer,
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+				return GoSNMPServer.Asn1IntegerWrap(3), nil
+			},
 			Document: "laIndex",
 		},
 		{
-			OID:      "1.3.6.1.4.1.2021.10.1.2.3",
-			Type:     gosnmp.OctetString,
-			OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1OctetStringWrap("Load-15"), nil },
+			OID:  "1.3.6.1.4.1.2021.10.1.2.3",
+			Type: gosnmp.OctetString,
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+				return GoSNMPServer.Asn1OctetStringWrap("Load-15"), nil
+			},
 			Document: "laNames",
 		},
 		{
 			OID:  "1.3.6.1.4.1.2021.10.1.3.3",
 			Type: gosnmp.OctetString,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				if val, err := load.Avg(); err != nil {
 					return nil, err
 				} else {
@@ -114,7 +126,7 @@ func SystemLoadOIDs() []*GoSNMPServer.PDUValueControlItem {
 		{
 			OID:  "1.3.6.1.4.1.2021.10.1.5.3",
 			Type: gosnmp.Integer,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				if val, err := load.Avg(); err != nil {
 					return nil, err
 				} else {

@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/gosnmp/gosnmp"
+	"github.com/mertcikla/GoSNMPServer"
 	"github.com/sirupsen/logrus"
-	"github.com/slayercat/GoSNMPServer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
