@@ -33,8 +33,15 @@ type FuncPDUControlCheckPermission func(pktVersion gosnmp.SnmpVersion, pduType g
 //			err  --  any error?(will return to client by string)
 type FuncPDUControlTrap func(isInform bool, trapdata gosnmp.SnmpPDU) (dataret interface{}, err error)
 
-// FuncPDUControlGet will be called on get value
-type FuncPDUControlGet func() (value interface{}, err error)
+// RequestContext provides per-request contextual data (thread-safe, immutable per call)
+type RequestContext struct {
+	DestinationIP net.IP
+	Packet        *gosnmp.SnmpPacket
+	SubAgent      *SubAgent
+}
+
+// FuncPDUControlGet will be called on get value with request context
+type FuncPDUControlGet func(ctx *RequestContext) (value interface{}, err error)
 
 // FuncPDUControlSet will be called on set value
 type FuncPDUControlSet func(value interface{}) error
