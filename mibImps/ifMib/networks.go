@@ -38,21 +38,25 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 		ifHWAddr := targetIf.HardwareAddr
 		currentIf := []*GoSNMPServer.PDUValueControlItem{
 			{
-				OID:      fmt.Sprintf("1.3.6.1.2.1.2.2.1.1.%d", ifIndex),
-				Type:     gosnmp.Integer,
-				OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1IntegerWrap(ifIndex), nil },
+				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.1.%d", ifIndex),
+				Type: gosnmp.Integer,
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+					return GoSNMPServer.Asn1IntegerWrap(ifIndex), nil
+				},
 				Document: "ifIndex",
 			},
 			{
-				OID:      fmt.Sprintf("1.3.6.1.2.1.2.2.1.2.%d", ifIndex),
-				Type:     gosnmp.OctetString,
-				OnGet:    func() (value interface{}, err error) { return GoSNMPServer.Asn1OctetStringWrap(ifName), nil },
+				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.2.%d", ifIndex),
+				Type: gosnmp.OctetString,
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
+					return GoSNMPServer.Asn1OctetStringWrap(ifName), nil
+				},
 				Document: "ifDescr",
 			},
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.3.%d", ifIndex),
 				Type: gosnmp.Integer,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					var gigabitEthernet = 117 // see  http://www.net-snmp.org/docs/mibs/interfaces.html#IANAifType
 					//XXX: Let's assume all item is gigabitEthernet. /sys/class/net/eth0/type
 					return GoSNMPServer.Asn1IntegerWrap(gigabitEthernet), nil
@@ -62,7 +66,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.6.%d", ifIndex),
 				Type: gosnmp.OctetString,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					targetStr := strings.Replace(ifHWAddr, ":", "", -1)
 					decoded, err := hex.DecodeString(targetStr)
 					if err != nil {
@@ -75,7 +79,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.10.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -87,7 +91,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.11.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -99,7 +103,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.13.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -111,7 +115,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.14.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -123,7 +127,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.16.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -135,7 +139,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.17.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -147,7 +151,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.19.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -159,7 +163,7 @@ func NetworkOIDs() []*GoSNMPServer.PDUValueControlItem {
 			{
 				OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.20.%d", ifIndex),
 				Type: gosnmp.Counter32,
-				OnGet: func() (value interface{}, err error) {
+				OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 					vid, err := getNetworkStatsByName(ifName, ifIndex)
 					if err != nil {
 						return nil, err
@@ -199,7 +203,7 @@ func appendLinuxPlatformNetworks(io *[]*GoSNMPServer.PDUValueControlItem, ifName
 		{
 			OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.7.%d", ifIndex),
 			Type: gosnmp.Integer,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				adminstatus_up := 1
 				adminstatus_down := 2
 				_, err = ioutil.ReadFile(fmt.Sprintf("/sys/class/net/%s/carrier", ifName))
@@ -213,7 +217,7 @@ func appendLinuxPlatformNetworks(io *[]*GoSNMPServer.PDUValueControlItem, ifName
 		{
 			OID:  fmt.Sprintf("1.3.6.1.2.1.2.2.1.8.%d", ifIndex),
 			Type: gosnmp.Integer,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *GoSNMPServer.RequestContext) (value interface{}, err error) {
 				str_num := map[string]int{
 					"up":             1,
 					"down":           2,
