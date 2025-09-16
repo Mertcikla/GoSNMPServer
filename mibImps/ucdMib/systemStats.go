@@ -2,10 +2,10 @@ package ucdMib
 
 import (
 	"github.com/gosnmp/gosnmp"
+	"github.com/mertcikla/GoSNMPServer"
 	"github.com/prometheus/procfs"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
-	"github.com/slayercat/GoSNMPServer"
 )
 
 // SystemStatsOIDs Returns a list of memory operation.
