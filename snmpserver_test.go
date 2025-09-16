@@ -65,7 +65,7 @@ func (suite *ServerTests) TestErrors() {
 					{
 						OID:  "1.2.4.0",
 						Type: gosnmp.Integer,
-						OnGet: func() (value interface{}, err error) {
+						OnGet: func(_ *RequestContext) (value interface{}, err error) {
 							return Asn1IntegerWrap(0), nil
 						},
 						Document: "",
@@ -73,7 +73,7 @@ func (suite *ServerTests) TestErrors() {
 					{
 						OID:  "1.2.4.1",
 						Type: gosnmp.IPAddress,
-						OnGet: func() (value interface{}, err error) {
+						OnGet: func(_ *RequestContext) (value interface{}, err error) {
 							return nil, errors.New("TestError")
 						},
 						OnSet: func(value interface{}) (err error) {
@@ -84,7 +84,7 @@ func (suite *ServerTests) TestErrors() {
 					{
 						OID:  "1.2.4.2",
 						Type: gosnmp.IPAddress,
-						OnGet: func() (value interface{}, err error) {
+						OnGet: func(_ *RequestContext) (value interface{}, err error) {
 							panic(errors.New("TestError"))
 						},
 						OnSet: func(value interface{}) (err error) {
@@ -96,7 +96,7 @@ func (suite *ServerTests) TestErrors() {
 						OID:         "1.2.4.3",
 						Type:        gosnmp.IPAddress,
 						NonWalkable: true,
-						OnGet: func() (value interface{}, err error) {
+						OnGet: func(_ *RequestContext) (value interface{}, err error) {
 							panic(errors.New("TestError"))
 						},
 						OnSet:    nil, // set will failture
@@ -109,7 +109,7 @@ func (suite *ServerTests) TestErrors() {
 						OnCheckPermission: func(pktVersion gosnmp.SnmpVersion, pduType gosnmp.PDUType, contextName string) PermissionAllowance {
 							return PermissionAllowanceDenied
 						},
-						OnGet: func() (value interface{}, err error) {
+						OnGet: func(_ *RequestContext) (value interface{}, err error) {
 							getedPriv = true
 							return "B40y0&OAA6Pm", nil
 						},
@@ -122,7 +122,7 @@ func (suite *ServerTests) TestErrors() {
 					{
 						OID:  "1.2.4.5",
 						Type: gosnmp.OctetString,
-						OnGet: func() (value interface{}, err error) {
+						OnGet: func(_ *RequestContext) (value interface{}, err error) {
 							return "1t&1ZZvY750j", nil
 						},
 						OnSet:    nil, // set will failture
@@ -436,7 +436,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.1",
 			Type: gosnmp.Integer,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1IntegerWrap(baseTestSuite.privGetSetOIDS.val_Integer), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -449,7 +449,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.2",
 			Type: gosnmp.Null,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return nil, nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -460,7 +460,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.3",
 			Type: gosnmp.OctetString,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1OctetStringWrap(baseTestSuite.privGetSetOIDS.val_OctetString), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -473,7 +473,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.4",
 			Type: gosnmp.ObjectIdentifier,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				target := baseTestSuite.privGetSetOIDS.val_ObjectIdentifier
 				if !IsValidObjectIdentifier(target) {
 					target = "1.2.3.4"
@@ -495,7 +495,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.6",
 			Type: gosnmp.Counter32,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1Counter32Wrap(baseTestSuite.privGetSetOIDS.val_Counter32), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -508,7 +508,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.7",
 			Type: gosnmp.Gauge32,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1Gauge32Wrap(baseTestSuite.privGetSetOIDS.val_Gauge32), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -521,7 +521,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.8",
 			Type: gosnmp.TimeTicks,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1TimeTicksWrap(baseTestSuite.privGetSetOIDS.val_TimeTicks), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -534,7 +534,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.9",
 			Type: gosnmp.Counter64,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1Counter64Wrap(baseTestSuite.privGetSetOIDS.val_Counter64), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -548,7 +548,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.10",
 			Type: gosnmp.Uinteger32,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1Uinteger32Wrap(baseTestSuite.privGetSetOIDS.val_Uinteger32), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -561,7 +561,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.11",
 			Type: gosnmp.OpaqueFloat,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1OpaqueFloatWrap(baseTestSuite.privGetSetOIDS.val_OpaqueFloat), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -574,7 +574,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.12",
 			Type: gosnmp.OpaqueDouble,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				return Asn1OpaqueDoubleWrap(baseTestSuite.privGetSetOIDS.val_OpaqueDouble), nil
 			},
 			OnSet: func(value interface{}) (err error) {
@@ -587,7 +587,7 @@ func (suite *ServerTests) getTestGetSetOIDS() []*PDUValueControlItem {
 		{
 			OID:  "1.2.3.13",
 			Type: gosnmp.IPAddress,
-			OnGet: func() (value interface{}, err error) {
+			OnGet: func(_ *RequestContext) (value interface{}, err error) {
 				vat := baseTestSuite.privGetSetOIDS.val_IPAddress
 				if vat == nil {
 					vat = net.ParseIP("127.0.0.1")

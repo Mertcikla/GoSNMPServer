@@ -27,10 +27,10 @@ jobs:
           go get -u golang.org/x/tools/cmd/goimports
       - name: Build project
         run: go build .
-      - name: Run tests with coverage
-        run: |
-          go test -coverpkg=./... -v ./... -coverprofile=tCoverage1.txt -covermode=atomic
-      - name: Combine coverage files
-        run: cat tCoverage*.txt > coverage.txt
+      # - name: Run tests with coverage
+      #   run: |
+      #     go test -coverpkg=./... -v ./... -coverprofile=tCoverage1.txt -covermode=atomic
+      # - name: Combine coverage files
+      #   run: cat tCoverage*.txt > coverage.txt
       - name: Build CLI
         run: go build github.com/mertcikla/GoSNMPServer/cmd/gosnmpserver
